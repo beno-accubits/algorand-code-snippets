@@ -165,7 +165,7 @@ if not holding:
     # This should now show a holding with a balance of 0.
     print_asset_holding(algod_client, accounts[3]['pk'], asset_id)
 
-    
+
 # TRANSFER ASSET
 
 # transfer asset of 10 from account 1 to account 3
@@ -186,3 +186,94 @@ print(txid)
 wait_for_confirmation(algod_client, txid)
 # The balance should now be 10.
 print_asset_holding(algod_client, accounts[3]['pk'], asset_id)
+
+
+# FREEZE ASSET
+
+params = algod_client.suggested_params()
+# comment these two lines if you want to use suggested params
+params.fee = 1000
+params.flat_fee = True
+# The freeze address (Account 2) freezes Account 3's latinum holdings.
+
+txn = AssetFreezeTxn(
+    sender=accounts[2]['pk'],
+    sp=params,
+    index=asset_id,
+    target=accounts[3]["pk"],
+    new_freeze_state=True   
+    )
+stxn = txn.sign(accounts[2]['sk'])
+txid = algod_client.send_transaction(stxn)
+print(txid)
+# Wait for the transaction to be confirmed
+wait_for_confirmation(algod_client, txid)
+# The balance should now be 10 with frozen set to true.
+print_asset_holding(algod_client, accounts[3]['pk'], asset_id)
+
+# REVOKE ASSET
+
+# The clawback address (Account 2) revokes 10 latinum from Account 3 and places it back with Account 1.
+params = algod_client.suggested_params()
+# comment these two lines if you want to use suggested params
+params.fee = 1000
+params.flat_fee = True
+
+# Must be signed by the account that is the Asset's clawback address
+txn = AssetTransferTxn(
+    sender=accounts[2]['pk'],
+    sp=params,
+    receiver=accounts[1]["pk"],
+    amt=10,
+    index=asset_id,
+    revocation_target=accounts[3]['pk']
+    )
+stxn = txn.sign(accounts[2]['sk'])
+txid = algod_client.send_transaction(stxn)
+print(txid)
+# Wait for the transaction to be confirmed
+wait_for_confirmation(algod_client, txid)
+# The balance of account 3 should now be 0.
+# account_info = algod_client.account_info(accounts[3]['pk'])
+print("Account 3")
+print_asset_holding(algod_client, accounts[3]['pk'], asset_id)
+
+# The balance of account 1 should increase by 10 to 1000.
+print("Account 1")
+print_asset_holding(algod_client, accounts[1]['pk'], asset_id)
+
+# DESTROY ASSET
+# With all assets back in the creator's account,
+# the manager (Account 1) destroys the asset.
+params = algod_client.suggested_params()
+# comment these two lines if you want to use suggested params
+params.fee = 1000
+params.flat_fee = True
+
+# Asset destroy transaction
+txn = AssetConfigTxn(
+    sender=accounts[2]['pk'],
+    sp=params,
+    index=asset_id,
+    strict_empty_address_check=False
+    )
+
+# Sign with secret key of creator
+stxn = txn.sign(accounts[2]['sk'])
+# Send the transaction to the network and retrieve the txid.
+txid = algod_client.send_transaction(stxn)
+print(txid)
+# Wait for the transaction to be confirmed
+wait_for_confirmation(algod_client, txid)
+
+# Asset was deleted.
+try:
+    print("Account 3 must do a transaction for an amount of 0, " )
+    print("with a close_assets_to to the creator account, to clear it from its accountholdings")
+    print("For Account 1, nothing should print after this as the asset is destroyed on the creator account")
+
+    print_asset_holding(algod_client, accounts[1]['pk'], asset_id)
+    print_created_asset(algod_client, accounts[1]['pk'], asset_id)
+    # asset_info = algod_client.asset_info(asset_id)
+except Exception as e:
+    print(e)
