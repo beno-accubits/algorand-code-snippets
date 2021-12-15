@@ -4,7 +4,7 @@ load_dotenv(find_dotenv())
 
 from algosdk.v2client import algod
 from algosdk import mnemonic, account
-from algosdk.future.transaction import PaymentTxn,calculate_group_id
+from algosdk.future.transaction import PaymentTxn, calculate_group_id
 from helper import wait_for_confirmation
 mnemonic1 = os.getenv('mnemonic1')
 mnemonic2 = os.getenv('mnemonic2')
