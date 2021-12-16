@@ -19,8 +19,8 @@ for m in [mnemonic1, mnemonic2, mnemonic3]:
     accounts[counter]['sk'] = mnemonic.to_private_key(m)
     counter += 1
 
-algod_address = "http://localhost:4001"
-algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+algod_address = os.getenv('algod_address')
+algod_token = os.getenv('algod_token')
 
 algod_client = algod.AlgodClient(algod_token=algod_token, algod_address=algod_address)
 

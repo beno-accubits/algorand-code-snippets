@@ -1,4 +1,5 @@
 import json
+from algosdk import mnemonic
 
 def wait_for_confirmation(client, txid):
     """
@@ -44,3 +45,14 @@ def print_asset_holding(algodclient, account, assetid):
             print("Asset ID: {}".format(scrutinized_asset['asset-id']))
             print(json.dumps(scrutinized_asset, indent=4))
             break
+
+# helper function to compile program source
+def compile_smart_signature(client, source_code):
+    compile_response = client.compile(source_code)
+    return compile_response['result'], compile_response['hash']
+
+# helper function that converts a mnemonic passphrase into a private signing key
+def get_private_key_from_mnemonic(mn) :
+    private_key = mnemonic.to_private_key(mn)
+    return private_key
+

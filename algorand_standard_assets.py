@@ -21,8 +21,8 @@ for m in [mnemonic1, mnemonic2, mnemonic3]:
 
 # Specify your node address and token. This must be updated.
 
-algod_address = "http://localhost:4001"
-algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+algod_address = os.getenv('algod_address')
+algod_token = os.getenv('algod_token')
 
 # Initialize an algod client
 algod_client = algod.AlgodClient(algod_token=algod_token, algod_address=algod_address)
