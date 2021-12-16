@@ -9,7 +9,7 @@ import base64
 from pyteal import *
 
 from helper import compile_smart_signature, wait_for_confirmation
-from smart_signature import donation_escrow
+from donation_escrow import donation_escrow
 
 benefactor_mnemonic = os.getenv('mnemonic1')
 sender_mnemonic = os.getenv('mnemonic2')
